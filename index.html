@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Bate-papo CAEd - Dissertações</title>
+</head>
+<body>
+    <h1>Bate-papo CAEd: Pergunte algo</h1>
+    <form id="chat-form">
+        <input type="text" id="question" placeholder="Digite a sua pergunta aqui:" required>
+        <button type="submit">Enviar</button>
+    </form>
+    <div id="response"></div>
+    
+    <script>
+        document.getElementById('chat-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const question = document.getElementById('question').value;
+            const responseDiv = document.getElementById('response');
+            responseDiv.innerHTML = 'Carregando...';
+
+            try {
+                const apiUrl = `${window.location.origin}/ask`; // Ensure this is correct
+                console.log('Sending request to:', apiUrl); // Debugging line
+                
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                        // No authentication headers
+                    },
+                    body: JSON.stringify({ question: question, chat_history: [] })
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Erro na solicitação: ${errorText}`);
+                }
+
+                const data = await response.json();
+                responseDiv.innerHTML = `<p><strong>Resposta:</strong> ${data.answer}</p>`;
+            } catch (error) {
+                console.error('Fetch error:', error);
+                responseDiv.innerHTML = `<p><strong>Erro:</strong> ${error.message}</p>`;
+            }
+        });
+    </script>
+</body>
+</html>
